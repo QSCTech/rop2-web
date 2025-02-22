@@ -3,6 +3,15 @@ FROM node:latest AS build-stage
 WORKDIR /app
 COPY ./package*.json ./
 COPY ./.npmrc ./
+
+ARG SKIP_NPMRC=false
+RUN if [ "$SKIP_NPMRC" = "true" ]; then \
+    echo "Removing .npmrc file" && \
+    rm -f .npmrc; \
+    else \
+    echo "Using local .npmrc file"; \
+    fi
+
 RUN npm install
 COPY . .
 ENV VITE_ENABLE_RUNTIME_CONFIG=true
