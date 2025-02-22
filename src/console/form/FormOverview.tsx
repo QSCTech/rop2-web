@@ -30,7 +30,7 @@ export default function FormOverview() {
                 content: (
                   <Flex vertical gap="small">
                     <Typography.Text>输入新表单的名称:</Typography.Text>
-                    <TempInput vref={vref} showCount maxLength={25} />
+                    <TempInput vref={vref} showCount maxLength={100} />
                   </Flex>
                 ),
                 async onConfirm() {

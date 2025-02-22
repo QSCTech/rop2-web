@@ -1,4 +1,4 @@
-# 忽略所有节点模块
+# 忽略依赖
 node_modules/
 
 # 忽略构建输出目录
@@ -30,6 +30,5 @@ tests/
 .gitattributes
 
 # 忽略其他不需要的文件
-README.md
+*.md
 LICENSE
-CHANGELOG.md

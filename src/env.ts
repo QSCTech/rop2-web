@@ -1,63 +1,29 @@
-interface Env {
-  APIBASE: string;
-}
+import { basename } from './utils';
 
 declare global {
   interface Window {
-    __env__: Env;
-  }
-}
-
-// 环境变量管理类
-class Environment {
-  private initPromise: Promise<void>;
-  private env: Env | null = null;
-
-  constructor() {
-    this.initPromise = this.init();
-  }
-
-  private async init() {
-    // 只有在启用运行时配置时才加载 env-config.js
-    if (import.meta.env.VITE_ENABLE_RUNTIME_CONFIG === 'true') {
-      try {
-        // 尝试加载环境配置，使用 vite-ignore 避免构建时转译
-        await import(/* @vite-ignore */ `${location.origin}/env-config.js`);
-      } catch (err) {
-        // 如果配置文件不存在，静默失败
-        console.debug('No runtime env config found, using default values');
-      }
-    }
-
-    // 初始化环境变量
-    this.env = {
-      APIBASE: this.getApiBase()
+    /**运行时环境变量配置对象。可能不存在，若存在必须包含以下全部键 */
+    __env__?: {
+      APIBASE: string;
     };
   }
 
-  private getApiBase(): string {
-    // 只有在启用运行时配置时才使用 window.__env__
-    if (import.meta.env.VITE_ENABLE_RUNTIME_CONFIG === 'true' && 
-        typeof window !== 'undefined' && 
-        window.__env__?.APIBASE) {
-      return window.__env__.APIBASE.replace(/\/+$/, '');
-    }
-    // 开发环境下使用 Vite 环境变量
-    if (import.meta.env.VITE_APIBASE) {
-      return import.meta.env.VITE_APIBASE.replace(/\/+$/, '');
-    }
-    // 默认值
-    return 'http://127.0.0.1:8080';
-  }
-
-  async getEnv(): Promise<Env> {
-    await this.initPromise;
-    return this.env!;
+  interface ImportMetaEnv {
+    VITE_APIBASE?: string;
+    VITE_ENABLE_RUNTIME_CONFIG?: string;
   }
 }
 
-// 创建单例实例
-const environment = new Environment();
+/**api基路径(api基路径和前端基路径无关)。该值不能以/结尾 */
+export let APIBASE = import.meta.env.VITE_APIBASE?.replace(/\/+$/, '') ?? 'http://127.0.0.1:8080';
 
-// 导出获取环境变量的函数
-export const getEnv = () => environment.getEnv();
+export const envInitPromise = (async () => {
+  if (import.meta.env.VITE_ENABLE_RUNTIME_CONFIG?.match(/^true|1$/i)) {
+    const envConfigModule = `${location.origin}${basename}/env-config.js`;
+    await import(/* @vite-ignore */ envConfigModule).catch((err) => console.error(`导入运行时环境文件失败: ${envConfigModule}`, err));
+  }
+  if (self.__env__) {
+    ({ APIBASE } = self.__env__);
+    console.log('已使用__env__', self.__env__);
+  } else console.log('未使用__env__');
+})();
