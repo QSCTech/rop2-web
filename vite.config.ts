@@ -16,7 +16,7 @@ const headSha = sh('git rev-parse HEAD');
 const headCommitCount = sh('git rev-list --count HEAD');
 const headBranch = sh('git rev-parse --abbrev-ref HEAD');
 const anyChanges = sh('git status --porcelain -uall', '').length > 0;
-const BUILD_INFO = isDocker ? '使用 Docker 构建' : `构建版本 {${headCommitCount}${anyChanges ? '*' : ''}}`;
+const BUILD_INFO = isDocker ? '使用 Docker 构建' : `构建版本 ${headCommitCount}${anyChanges ? '*' : ''}`;
 
 // https://vitejs.dev/config/
 export default defineConfig({
