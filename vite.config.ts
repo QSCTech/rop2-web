@@ -41,9 +41,17 @@ export default defineConfig({
         hashCharacters: 'base64',
         assetFileNames: 'assets/[name]-[hash:8][extname]',
         chunkFileNames: '[name]-[hash:6].js',
-        manualChunks: {
-          react: ['react-router-dom', 'react-dom', 'react'],
-          antd: ['antd', '@ant-design/icons'],
+        codeSplitting: {
+          groups: [
+            {
+              test: /node_modules\/react/,
+              name: 'react',
+            },
+            {
+              test: /node_modules\/(antd|@ant-design)/,
+              name: 'antd',
+            },
+          ],
         },
       },
     },
